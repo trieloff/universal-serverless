@@ -6,4 +6,4 @@ echo "\nOpenwhisk"
 curl -i "https://adobeioruntime.net/api/v1/web/trieloff/default/hello/path?goo=mal"
 
 echo "\nAzure"
-curl -i "https://universal-serverless.azurewebsites.net/api/hello"
+curl -i "https://universal-serverless.azurewebsites.net/api/hello?goo=mal"

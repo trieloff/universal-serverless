@@ -4,7 +4,9 @@ const { Request } = require("node-fetch");
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
   try {
-    const request = new Request("http://example.com");
+    const request = new Request(req.url, {
+      method: req.method
+    });
     const con = {
       runtime: {
         name: 'azure-functions',
