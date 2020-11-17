@@ -1,4 +1,5 @@
 const { main } = require("./main.js");
+const { Request } = require("node-fetch");
 
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
@@ -19,7 +20,7 @@ module.exports = async function (context, req) {
       //   h[header] = value;
       //   return h;
       // }, {}),
-      body: 'todo' // response.body.text()
+      body: await response.text()
     };
   } catch (e) {
     context.res = {

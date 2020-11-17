@@ -1,3 +1,6 @@
 {
-	"main": "openwhisk.js"
+	"main": "openwhisk.js",
+	"dependencies": {
+		"node-fetch": "^2.6.1"
+	}
 }

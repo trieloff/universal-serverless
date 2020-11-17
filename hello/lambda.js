@@ -1,6 +1,7 @@
 const { main } = require('./main.js');
+const { Request } = require("node-fetch");
 
-exports.handler = async (event) => {
+exports.handler = async function(event) {
 	try {
 		const request = new Request("http://example.com");
 		const context = {
@@ -19,7 +20,7 @@ exports.handler = async (event) => {
 			// 	h[header] = value;
 			// 	return h;
 			// }, {}),
-			body: 'todo' // response.body.text()
+			body: await response.text()
 		};
 	} catch (e) {
 		return {

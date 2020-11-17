@@ -1,6 +1,7 @@
 const { main } = require('./main');
+const { Request } = require("node-fetch");
 
-module.exports.main = async function main(params) {
+module.exports.main = async function(params) {
 	try {
 		const request = new Request("http://example.com");
 		const context = {
@@ -18,7 +19,7 @@ module.exports.main = async function main(params) {
 			// 	h[header] = value;
 			// 	return h;
 			// }, {}),
-			body: 'todo' // response.body.text()
+			body: await response.text()
 		};
 	} catch (e) {
 		return {
