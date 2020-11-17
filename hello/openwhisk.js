@@ -4,7 +4,8 @@ const { Request } = require("node-fetch");
 module.exports.main = async function(params) {
 	try {
 		const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env['__OW_ACTION_NAME']}${params.__ow_path}`, {
-			method: params.__ow_method
+			method: params.__ow_method,
+			headers: params.__ow_headers
 		});
 		const context = {
 			runtime: {

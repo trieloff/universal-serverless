@@ -3,7 +3,10 @@ const { Request } = require("node-fetch");
 
 exports.handler = async function(event) {
 	try {
-		const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`);
+		const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
+			method: event.requestContext.http.method,
+			headers: event.headers
+		});
 		const context = {
 			runtime: {
 				name: 'aws-lambda',

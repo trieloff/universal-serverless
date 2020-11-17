@@ -5,7 +5,8 @@ module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
   try {
     const request = new Request(req.url, {
-      method: req.method
+      method: req.method,
+      headers: req.headers
     });
     const con = {
       runtime: {
