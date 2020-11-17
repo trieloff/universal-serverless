@@ -15,10 +15,10 @@ module.exports.main = async function(params) {
 		
 		return {
 			statusCode: response.status,
-			// headers: response.headers.entries().reduce((h, [header, value]) => {
-			// 	h[header] = value;
-			// 	return h;
-			// }, {}),
+			headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
+				h[header] = value;
+				return h;
+			}, {}),
 			body: await response.text()
 		};
 	} catch (e) {
