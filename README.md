@@ -1,6 +1,6 @@
 # Universal Serverless Experiment
 
-> Is write once, run everywhere possible for serverless computing.
+> Is write once, run everywhere possible for serverless computing?
 
 This experiment tries to do two things:
 
