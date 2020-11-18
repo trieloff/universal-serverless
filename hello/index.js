@@ -80,7 +80,7 @@ module.exports.openwhisk = async function(params) {
 // Google
 module.exports.google = async (req, res) => {
   try {
-    const request = new Request(`https://${req.hostname}${req.originalUrl}`, {
+    const request = new Request(`https://${req.hostname}/${process.env.K_SERVICE}${req.originalUrl}`, {
       method: req.method,
       headers: req.headers,
     });

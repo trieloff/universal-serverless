@@ -9,4 +9,4 @@ echo "\nAzure"
 curl -i "https://universal-serverless.azurewebsites.net/api/hello?goo=mal"
 
 echo "\nGoogle"
-curl -i "https://us-central1-helix-225321.cloudfunctions.net/hello"
+curl -i "https://us-central1-helix-225321.cloudfunctions.net/hello?goo=mal"
