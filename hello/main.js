@@ -1,7 +1,13 @@
 const { Response } = require("node-fetch");
 
 module.exports.main = async function(request, context) {
-  let body = "hello world\n\n" + JSON.stringify(context, null, "  ");
+  let body = "hello world!\n\n";
+  
+  try {
+    body += JSON.stringify(context, null, "  ");
+  } catch {
+    body += context.toString();
+  }
   
   body += "\n" + request.url;
   body += "\n" + request.method;

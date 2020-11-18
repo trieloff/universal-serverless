@@ -15,7 +15,7 @@ module.exports = async function (context, req) {
     const con = {
       runtime: {
         name: 'azure-functions',
-        args: arguments
+        args: [...arguments, process.env]
       }
     };
     
@@ -43,14 +43,16 @@ module.exports = async function (context, req) {
 // OW
 module.exports.openwhisk = async function(params) {
   try {
-    const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env['__OW_ACTION_NAME']}${params.__ow_path}`, {
+    const env = { ...process.env };
+    delete env.__OW_API_KEY;
+    const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env['__OW_ACTION_NAME']}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
       method: params.__ow_method,
       headers: params.__ow_headers
     });
     const context = {
       runtime: {
         name: 'apache-openwhisk',
-        args: arguments
+        args: [...arguments, env]
       }
     };
     
@@ -78,17 +80,22 @@ module.exports.openwhisk = async function(params) {
 // Google
 module.exports.google = async (req, res) => {
   try {
-    const request = new Request(req.url);
+    const request = new Request(`https://${req.hostname}${req.originalUrl}`, {
+      method: req.method,
+      headers: req.headers,
+    });
     const context = {
       runtime: {
         name: 'googlecloud-functions',
-        args: arguments
+        args: [process.env, req.app.locals, req.headers]
       }
     };
     
     const response = await main(request, context);
     
-    res.status(response.status).send(await response.text());
+    Array.from(response.headers.entries()).reduce((r, [header, value]) => {
+      return r.set(header, value);
+    }, res.status(response.status)).send(await response.text());
     
   } catch (e) {
     res.status(500).send(e.message);
@@ -106,7 +113,7 @@ module.exports.lambda = async function(event) {
     const context = {
       runtime: {
         name: 'aws-lambda',
-        args: arguments
+        args: [...arguments, process.env]
       }
     };
     
