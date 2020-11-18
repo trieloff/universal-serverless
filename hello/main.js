@@ -12,6 +12,7 @@ module.exports.main = async function(request, context) {
   body += "\n" + request.url;
   body += "\n" + request.method;
   body += "\n" + request.headers.get('user-agent');
+  body += "\n" + request.body.toString();
   
   return new Response(body, {
     status: 201,
