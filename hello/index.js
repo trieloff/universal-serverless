@@ -77,8 +77,22 @@ module.exports.openwhisk = async function(params) {
 
 // Google
 module.exports.google = async (req, res) => {
-  let message = req.query.message || req.body.message || 'Hello World!';
-  res.status(200).send(message);
+  try {
+    const request = new Request(req.url);
+    const context = {
+      runtime: {
+        name: 'googlecloud-functions',
+        args: arguments
+      }
+    };
+    
+    const response = await main(request, context);
+    
+    res.status(response.status).send(await response.text());
+    
+  } catch (e) {
+    res.status(500).send(e.message);
+  }
 };
 
 
