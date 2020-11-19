@@ -4,6 +4,27 @@ const { Request } = require("node-fetch");
  * Universal Wrapper for serverless functions
  */
 
+/**
+ * Checks if the content type is binary.
+ * @param {string} type - content type
+ * @returns {boolean} {@code true} if content type is binary.
+ */
+function isBinary(type) {
+  if (/text\/.*/.test(type)) {
+    return false;
+  }
+  if (/.*\/javascript/.test(type)) {
+    return false;
+  }
+  if (/.*\/.*json/.test(type)) {
+    return false;
+  }
+  if (/.*\/.*xml/.test(type)) {
+    return /svg/.test(type); // openwhisk treats SVG as binary
+  }
+  return true;
+}
+
 // Azure
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
@@ -11,7 +32,8 @@ module.exports = async function (context, req) {
     const request = new Request(req.url, {
       method: req.method,
       headers: req.headers,
-      body: req.rawBody,
+      // azure only detects binaries when the mime type is a/o-s so no image/png or friends
+      body: req.headers['content-type']==='application/octet-stream' ? req.body : req.rawBody,
     });
     
     const con = {
@@ -28,7 +50,10 @@ module.exports = async function (context, req) {
         id: context.invocationId,
         deadline: undefined, 
       },
-      env: process.env
+      env: process.env,
+      debug: Object.keys(req),
+      types: [typeof req.body, typeof req.rawBody],
+      headers: req.headers,
     };
     
     const response = await main(request, con);
@@ -60,7 +85,7 @@ module.exports.openwhisk = async function(params) {
     const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env['__OW_ACTION_NAME']}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
       method: params.__ow_method,
       headers: params.__ow_headers,
-      body: params.__ow_body,
+      body: isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body,
     });
     
     const [namespace, ...names] = process.env.__OW_ACTION_NAME.split('/');
@@ -116,6 +141,7 @@ module.exports.google = async (req, res) => {
     const request = new Request(`https://${req.hostname}/${process.env.K_SERVICE}${req.originalUrl}`, {
       method: req.method,
       headers: req.headers,
+      // google magically does the right thing here
       body: req.rawBody,
     });
     

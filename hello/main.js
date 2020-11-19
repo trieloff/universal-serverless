@@ -12,8 +12,14 @@ module.exports.main = async function(request, context) {
   body += "\n" + request.url;
   body += "\n" + request.method;
   body += "\n" + request.headers.get('user-agent');
-  body += "\n" + request.body.toString();
   
+  if (request.headers.get('content-type') === 'image/png' || request.headers.get('content-type') === 'application/octet-stream') {
+    const arrb = await request.arrayBuffer();
+    const buff = Buffer.from(arrb, 'utf-8');
+    body += "\n" + buff.toString('base64') + ` (${arrb.byteLength} bytes)`
+  } else {  
+    body += "\n" + request.body.toString();
+  }
   return new Response(body, {
     status: 201,
     headers: {
