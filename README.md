@@ -15,9 +15,40 @@ With following limitations:
 
 ## Supported Runtimes
 
-- Apache OpenWhisk (`openwhisk.js`)
-- AWS Lambda (`lambda.js`)
-- Azure Functions (`index.js`)
+- Apache OpenWhisk
+- AWS Lambda
+- Azure Functions
+- Google Cloud Functions
+
+## API
+
+```javascript
+// we use the fetch API, and node-fetch is a good approximation
+const { Response } = require("node-fetch");
+
+module.exports.main = async function(request, context) {
+  let body = "hello world!\n\n";
+  
+  try {
+    body += JSON.stringify(context, null, "  ");
+  } catch {
+    body += context.toString();
+  }
+  
+  body += "\n" + request.url;
+  body += "\n" + request.method;
+  body += "\n" + request.headers.get('user-agent');
+  body += "\n" + request.body.toString();
+  
+  return new Response(body, {
+    status: 201,
+    headers: {
+      'Content-Type': 'text/plain',
+      'X-Generator': 'hello world'
+    }
+  });
+}
+```
 
 # Developing
 
