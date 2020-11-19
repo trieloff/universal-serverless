@@ -74,7 +74,7 @@ We honor: `status`, `headers`, `body`
 
 # Known Limitations 
 
-- binary request or response bodies not supported
+- binary response bodies not supported
 
 # Next Steps
 
