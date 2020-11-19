@@ -5,7 +5,7 @@ aws lambda update-function-code --function-name=hello --zip-file=fileb://$(pwd)/
 aws lambda update-function-configuration --function-name=hello --handler=index.lambda
 
 # OpenWhisk
-wsk action update hello hello.zip --kind nodejs:12 --web raw --main openwhisk
+wsk action update hello hello.zip --kind nodejs:12 --web raw --main openwhisk --param HELLO world
 
 # Azure
 # 1. Open your function app in the Azure portal and go to "Overview"

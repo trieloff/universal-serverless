@@ -13,11 +13,22 @@ module.exports = async function (context, req) {
       headers: req.headers,
       body: req.rawBody,
     });
+    
     const con = {
       runtime: {
         name: 'azure-functions',
-        args: [...arguments, process.env]
-      }
+        region: process.env.Location,
+      },
+      func: {
+        name: context.executionContext.functionName,
+        version: undefined, // seems impossible to get
+        app: process.env.WEBSITE_SITE_NAME,
+      },
+      invocation: {
+        id: context.invocationId,
+        deadline: undefined, 
+      },
+      env: process.env
     };
     
     const response = await main(request, con);
@@ -51,11 +62,31 @@ module.exports.openwhisk = async function(params) {
       headers: params.__ow_headers,
       body: params.__ow_body,
     });
+    
+    const [namespace, ...names] = process.env.__OW_ACTION_NAME.split('/');
+    
+    delete params.__ow_method;
+    delete params.__ow_query;
+    delete params.__ow_body;
+    delete params.__ow_headers;
+    delete params.__ow_path;
+    
+    
     const context = {
       runtime: {
         name: 'apache-openwhisk',
-        args: [...arguments, env]
-      }
+        region: process.env.__OW_REGION,
+      },
+      func: {
+        name: names.join('/'),
+        version: process.env.__OW_ACTION_VERSION,
+        app: namespace,
+      },
+      invocation: {
+        id: process.env.__OW_ACTIVATION_ID,
+        deadline: Number.parseInt(process.env.__OW_DEADLINE, 10), 
+      },
+      env: { ...params, ...process.env }
     };
     
     const response = await main(request, context);
@@ -87,11 +118,25 @@ module.exports.google = async (req, res) => {
       headers: req.headers,
       body: req.rawBody,
     });
+    
+    const [ subdomain ] = req.headers.host.split('.');
+    const [ country, region, ...servicename ] = subdomain.split('-');
+    
     const context = {
       runtime: {
         name: 'googlecloud-functions',
-        args: [process.env, req.app.locals, req.headers]
-      }
+        region: `${country}${region}`,
+      },
+      func: {
+        name: process.env.K_SERVICE,
+        version: process.env.K_REVISION,
+        app: servicename.join('-'),
+      },
+      invocation: {
+        id: req.headers['function-execution-id'],
+        deadline: Number.parseInt(req.headers['x-appengine-timeout-ms'], 10) + Date.now(), 
+      },
+      env: process.env
     };
     
     const response = await main(request, context);
@@ -106,21 +151,31 @@ module.exports.google = async (req, res) => {
 
 
 // AWS
-module.exports.lambda = async function(event) {
+module.exports.lambda = async function(event, context) {
   try {
     const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
       method: event.requestContext.http.method,
       headers: event.headers,
       body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     });
-    const context = {
+    const con = {
       runtime: {
         name: 'aws-lambda',
-        args: [...arguments, process.env]
-      }
+        region: process.env.AWS_REGION,
+      },
+      func: {
+        name: context.functionName,
+        version: context.functionVersion,
+        app: event.requestContext.apiId,
+      },
+      invocation: {
+        id: context.awsRequestId,
+        deadline: Date.now() + context.getRemainingTimeInMillis()
+      },
+      env: process.env
     };
     
-    const response = await main(request, context);
+    const response = await main(request, con);
     
     return {
       statusCode: response.status,
