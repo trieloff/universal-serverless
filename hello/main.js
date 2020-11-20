@@ -18,7 +18,7 @@ module.exports.main = async function(request, context) {
     const buff = Buffer.from(arrb, 'utf-8');
     body += "\n" + buff.toString('base64') + ` (${arrb.byteLength} bytes)`
   } else {  
-    body += "\n" + request.body.toString();
+    body += "\n" + (request.body || 'GET requests do not have a body').toString();
   }
   return new Response(body, {
     status: 201,

@@ -28,12 +28,21 @@ function isBinary(type) {
 // Azure
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
+  
+  let body;
+  if (!/^(GET|HEAD)$/i.test(req.method)) {
+    body = req.headers['content-type']==='application/octet-stream' ? req.body : req.rawBody;
+  }
+  if (req.headers['content-type']==='application/octet-stream' && req.headers['x-backup-content-type']) {
+    req.headers['content-type'] = req.headers['x-backup-content-type'];
+  }
+  
   try {
     const request = new Request(req.url, {
       method: req.method,
       headers: req.headers,
       // azure only detects binaries when the mime type is a/o-s so no image/png or friends
-      body: req.headers['content-type']==='application/octet-stream' ? req.body : req.rawBody,
+      body
     });
     
     const con = {
@@ -80,12 +89,17 @@ module.exports = async function (context, req) {
 // OW
 module.exports.openwhisk = async function(params) {
   try {
+    let body;
+    if (!/^(GET|HEAD)$/i.test(params.__ow_method)) {
+      body = isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body;
+    }
+    
     const env = { ...process.env };
     delete env.__OW_API_KEY;
     const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env['__OW_ACTION_NAME']}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
       method: params.__ow_method,
       headers: params.__ow_headers,
-      body: isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body,
+      body
     });
     
     const [namespace, ...names] = process.env.__OW_ACTION_NAME.split('/');

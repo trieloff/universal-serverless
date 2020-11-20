@@ -13,6 +13,14 @@ With following limitations:
 - The only supported trigger is HTTP
 - None of the outbound platform APIs will be abstracted
 
+## Try it
+
+```bash
+$ curl https://serverless.project-helix.dev/hello
+```
+
+You will get the same function results, from a randomly selected runtime.
+
 ## Supported Runtimes
 
 - Apache OpenWhisk
