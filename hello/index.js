@@ -136,7 +136,7 @@ module.exports.openwhisk = async function(params) {
         h[header] = value;
         return h;
       }, {}),
-      body: await response.text()
+      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString("base64") : await response.text()
     };
   } catch (e) {
     return {
