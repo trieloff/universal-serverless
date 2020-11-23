@@ -13,6 +13,11 @@ With following limitations:
 - The only supported trigger is HTTP
 - None of the outbound platform APIs will be abstracted
 
+Compared to other approaches like [Serverless `@multicloud`](https://github.com/serverless/multicloud) this project:
+
+- does not require any code changes to adapt code from one runtime to another
+- does not depend on a framework
+
 ## Try it
 
 ```bash
@@ -82,11 +87,10 @@ We honor: `status`, `headers`, `body`
 
 # Known Limitations 
 
-- binary response bodies not supported
+- no unit or integration tests, no CI
 
 # Next Steps
 
-- A CDN that abstracts execution and can fall back between services
 - A service that deploys function from a zip file
 
 # Developing

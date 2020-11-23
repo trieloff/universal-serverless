@@ -73,7 +73,8 @@ module.exports = async function (context, req) {
         h[header] = value;
         return h;
       }, {}),
-      body: await response.text()
+      isRaw: isBinary(response.headers.get('content-type')),
+      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text()
     };
   } catch (e) {
     context.res = {
@@ -183,7 +184,7 @@ module.exports.google = async (req, res) => {
     
     Array.from(response.headers.entries()).reduce((r, [header, value]) => {
       return r.set(header, value);
-    }, res.status(response.status)).send(await response.text());
+    }, res.status(response.status)).send(isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text());
   } catch (e) {
     res.status(500).send(e.message);
   }
