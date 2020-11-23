@@ -223,7 +223,8 @@ module.exports.lambda = async function(event, context) {
         h[header] = value;
         return h;
       }, {}),
-      body: await response.text()
+      isBase64Encoded: isBinary(response.headers.get('content-type')),
+      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString("base64") : await response.text()
     };
   } catch (e) {
     return {

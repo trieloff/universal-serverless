@@ -16,6 +16,18 @@ module.exports.main = async function(request, context) {
   if (request.headers.get('content-type') === 'image/png' || request.headers.get('content-type') === 'application/octet-stream') {
     const arrb = await request.arrayBuffer();
     const buff = Buffer.from(arrb, 'utf-8');
+    
+    if (request.method === 'PUT') {
+      return new Response(buff, {
+        status: 201,
+        headers: {
+          'Content-Type': request.headers.get('content-type'),
+          'X-Generator': 'hello world',
+          'X-Length': arrb.byteLength
+        }
+      });
+    }
+    
     body += "\n" + buff.toString('base64') + ` (${arrb.byteLength} bytes)`
   } else {  
     body += "\n" + (request.body || 'GET requests do not have a body').toString();
